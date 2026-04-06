@@ -75,7 +75,7 @@ export default function BlogListing() {
         )}
       </div>
 
-      <AdSense adSlot="blog-listing-bottom" />
+      <AdSense adSlot="7503131866" />
     </div>
   );
 }

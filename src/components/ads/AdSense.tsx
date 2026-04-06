@@ -22,7 +22,7 @@ export default function AdSense({
 }: AdSenseProps) {
   const { profile, isLoading } = useUserProfile();
   const isPremium = profile?.isPremium === true;
-  const adClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
+  const adClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID || 'ca-pub-2333095168156324';
   const adRef = useRef<HTMLModElement>(null);
   const [adLoaded, setAdLoaded] = useState(false);
 

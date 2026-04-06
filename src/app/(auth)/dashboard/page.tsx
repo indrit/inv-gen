@@ -10,6 +10,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase';
+import { useUserProfile } from '@/firebase/firestore/use-user-profile';
 import { collection, addDoc, serverTimestamp, query, orderBy, limit } from 'firebase/firestore';
 import { handleFirestoreError, OperationType } from '@/firebase/utils';
 import { clientSchema, type Client, type ClientValues } from '@/lib/clients';
@@ -20,6 +21,7 @@ import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import AdSense from '@/components/ads/AdSense';
 
 const StatCard = ({ title, value, icon, action }: { title: string; value: string | number; icon: React.ReactNode; action?: React.ReactNode }) => (
     <Card>
@@ -129,6 +131,9 @@ export default function DashboardPage() {
     const firestore = useFirestore();
     const [searchTerm, setSearchTerm] = useState('');
     const [rerender, setRerender] = useState(0);
+
+    const { profile } = useUserProfile();
+    const isPremium = profile?.isPremium === true;
 
     // Queries for stats (all documents)
     const allInvoicesQuery = useMemoFirebase(() => user && firestore ? collection(firestore, 'users', user.uid, 'invoices') : null, [user, firestore]);
@@ -286,6 +291,12 @@ export default function DashboardPage() {
                     </CardContent>
                 </Card>
             </div>
+
+            {!isPremium && (
+                <div className="pt-8">
+                    <AdSense adSlot="7503131866" />
+                </div>
+            )}
         </div>
     );
 }

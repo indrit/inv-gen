@@ -2,6 +2,7 @@
 
 import { APP_NAME } from '@/lib/constants';
 import { useUserProfile } from '@/firebase/firestore/use-user-profile';
+import AdSense from '@/components/ads/AdSense';
 import Link from 'next/link';
 
 export default function Footer() {
@@ -11,6 +12,13 @@ export default function Footer() {
   // Even premium users should see legal links, but maybe a more minimal footer
   return (
     <footer className="border-t bg-white">
+      {!isPremium && (
+        <div className="border-b">
+          <div className="container mx-auto px-6 py-4">
+            <AdSense adSlot="7503131866" className="my-0" />
+          </div>
+        </div>
+      )}
       <div className="container mx-auto px-6 py-12">
         <div className="flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="text-center md:text-left">
