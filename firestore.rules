@@ -1,0 +1,292 @@
+/**
+ * # Firestore Security Rules for InvoiceFlow
+ *
+ * ## Core Philosophy
+ * This ruleset enforces a strict security model based on user ownership for personal data and role-based access for public content. The primary goal is to ensure that users can only access and modify their own information, while designated administrators manage shared, public-facing content like the blog and CMS.
+ *
+ * ## Data Structure
+ * The data is organized into two main categories:
+ * 1.  **User-Private Data**: All data belonging to a specific user (accounts, profiles, clients, invoices, etc.) is nested under the `/users/{userId}` path. This creates a secure, hierarchical data silo for each user.
+ * 2.  **Public/Shared Data**: Content intended for public consumption (blog posts, categories, CMS content) is stored in top-level collections like `/blogPosts`. Access to modify this data is restricted.
+ *
+ * ## Key Security Decisions
+ * - **Strict Ownership**: All paths under `/users/{userId}` are inaccessible to anyone other than the authenticated user whose UID matches the `{userId}`.
+ * - **No User Enumeration**: Listing documents from the top-level `/users` collection is explicitly forbidden to protect user privacy.
+ * - **Client-Side Admin Check**: Write access to public collections like `/blogPosts` is restricted to authenticated users who are the author of the content. The UI at `/admin` is protected by a client-side check on the admin's email, which prevents non-admins from accessing the content creation tools.
+ * - **Public Read-Only**: All public-facing collections are readable by anyone.
+ *
+ * ## Denormalization for Authorization
+ * To ensure fast and simple authorization checks, this ruleset relies on denormalized data. For example, every document within a user's data tree (e.g., a Client or Invoice document) contains a `userId` field that must match the `{userId}` in the document's path. This avoids slow and costly `get()` calls to parent documents and makes security rules more efficient and easier to reason about.
+ *
+ * ## Structural Segregation
+ * A clear separation is maintained between private user data (under `/users/{userId}`) and public data (in top-level collections). This segregation simplifies security rules for list operations, as queries for a user's private data are naturally scoped to their own data tree, and queries for public data can be more openly permitted.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // -------------------------------------------------------------------------
+    // Helper Functions
+    // -------------------------------------------------------------------------
+
+    /**
+     * Checks if the user is authenticated.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * Checks if the requesting user's UID matches the provided userId.
+     * This is the foundation of the user-ownership model.
+     */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+    
+    /**
+     * Checks for ownership on an existing document. Used for safe updates/deletes.
+     */
+    function isExistingOwner(userId) {
+      return isOwner(userId) && resource != null;
+    }
+
+    // --- Data Integrity Validation Functions ---
+
+    /**
+     * Validates that the 'userId' in a new document's data matches the owner's UID.
+     * Enforces the denormalization pattern on creation.
+     */
+    function newDocHasCorrectOwner(userId) {
+      return request.resource.data.userId == userId;
+    }
+    
+    /**
+     * Enforces that the 'userId' field cannot be changed after creation.
+     */
+    function ownerIsImmutable() {
+      return request.resource.data.userId == resource.data.userId;
+    }
+
+    /**
+     * Validates that a new document correctly links to its parent via `parentId`.
+     */
+    function newDocHasCorrectParent(parentId) {
+      return request.resource.data.parentId == parentId;
+    }
+    
+    /**
+     * Enforces that the 'parentId' field cannot be changed after creation.
+     */
+    function parentIsImmutable() {
+      return request.resource.data.parentId == resource.data.parentId;
+    }
+
+
+    // -------------------------------------------------------------------------
+    // User Data Collections
+    // -------------------------------------------------------------------------
+
+    /**
+     * @description A user can create their own account document and can read/update it, but cannot delete it or list other users.
+     * @path /users/{userId}
+     * @allow (create) An authenticated user with UID 'user_abc' creating their own document at `/users/user_abc`.
+     * @deny (list) Any user attempting to list all documents in the `/users` collection.
+     * @principle Restricts access to a user's own data tree and prevents user enumeration.
+     */
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false;
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId);
+      allow delete: if false;
+    }
+
+    /**
+     * @description A user can manage their own profile document.
+     * @path /users/{userId}/profile/{profileId}
+     * @allow (create) User 'user_abc' creating their profile document in `/users/user_abc/profile/`.
+     * @deny (get) User 'user_xyz' trying to read a profile document from `/users/user_abc/profile/`.
+     * @principle Enforces document ownership for all operations.
+     */
+    match /users/{userId}/profile/{profileId} {
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId) && newDocHasCorrectOwner(userId);
+      allow update: if isExistingOwner(userId) && ownerIsImmutable();
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description A user can manage their own client records.
+     * @path /users/{userId}/clients/{clientId}
+     * @allow (create) User 'user_abc' adding a new client to their list at `/users/user_abc/clients/`.
+     * @deny (update) User 'user_xyz' attempting to modify a client at `/users/user_abc/clients/client_123`.
+     * @principle Enforces document ownership and validates relational integrity.
+     */
+    match /users/{userId}/clients/{clientId} {
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId) && newDocHasCorrectOwner(userId);
+      allow update: if isExistingOwner(userId) && ownerIsImmutable();
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description A user can manage their own invoices.
+     * @path /users/{userId}/invoices/{invoiceId}
+     * @allow (list) User 'user_abc' listing all of their invoices from `/users/user_abc/invoices`.
+     * @deny (get) An unauthenticated user trying to read an invoice.
+     * @principle Enforces document ownership and validates relational integrity.
+     */
+    match /users/{userId}/invoices/{invoiceId} {
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId) && newDocHasCorrectOwner(userId);
+      allow update: if isExistingOwner(userId) && ownerIsImmutable();
+      allow delete: if isExistingOwner(userId);
+    }
+    
+    /**
+     * @description A user can manage line items belonging to their own invoices.
+     * @path /users/{userId}/invoices/{invoiceId}/lineItems/{lineItemId}
+     * @allow (create) User 'user_abc' adding a line item to their invoice `inv_123`.
+     * @deny (create) User 'user_abc' adding a line item with a mismatched `parentId`.
+     * @principle Enforces ownership via path and validates the parent-child relationship.
+     */
+    match /users/{userId}/invoices/{invoiceId}/lineItems/{lineItemId} {
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId) && newDocHasCorrectParent(invoiceId);
+      allow update: if isExistingOwner(userId) && parentIsImmutable();
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description A user can manage their own estimates.
+     * @path /users/{userId}/estimates/{estimateId}
+     * @allow (delete) User 'user_abc' deleting their own estimate at `/users/user_abc/estimates/est_456`.
+     * @deny (create) User 'user_abc' creating an estimate under another user's path `/users/user_xyz/estimates/`.
+     * @principle Enforces document ownership and validates relational integrity.
+     */
+    match /users/{userId}/estimates/{estimateId} {
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId) && newDocHasCorrectOwner(userId);
+      allow update: if isExistingOwner(userId) && ownerIsImmutable();
+      allow delete: if isExistingOwner(userId);
+    }
+    
+    /**
+     * @description A user can manage line items belonging to their own estimates.
+     * @path /users/{userId}/estimates/{estimateId}/lineItems/{lineItemId}
+     * @allow (create) User 'user_abc' adding a line item to their estimate `est_456`.
+     * @deny (update) User 'user_xyz' trying to update a line item on an estimate owned by 'user_abc'.
+     * @principle Enforces ownership via path and validates the parent-child relationship.
+     */
+    match /users/{userId}/estimates/{estimateId}/lineItems/{lineItemId} {
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId) && newDocHasCorrectParent(estimateId);
+      allow update: if isExistingOwner(userId) && parentIsImmutable();
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description A user can manage their own subscription document.
+     * @path /users/{userId}/subscription/{subscriptionId}
+     * @allow (get) User 'user_abc' reading their subscription details.
+     * @deny (get) User 'user_xyz' reading the subscription details for 'user_abc'.
+     * @principle Enforces document ownership for a user's subscription information.
+     */
+    match /users/{userId}/subscription/{subscriptionId} {
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId) && newDocHasCorrectOwner(userId);
+      allow update: if isExistingOwner(userId) && ownerIsImmutable();
+      allow delete: if isExistingOwner(userId);
+    }
+
+    // -------------------------------------------------------------------------
+    // Public & Admin-Managed Collections
+    // -------------------------------------------------------------------------
+    
+    /**
+     * @description Blog posts are publicly readable. Only the author can manage them.
+     * @path /blogPosts/{blogPostId}
+     * @allow (read) Any user can read any post.
+     * @deny (write) A non-author user trying to create or delete a post.
+     * @principle Implements public read access while restricting writes to the author.
+     */
+    match /blogPosts/{blogPostId} {
+      allow read: if true;
+      allow create: if isSignedIn() && request.resource.data.authorId == request.auth.uid;
+      allow update: if (isSignedIn() && resource.data.authorId == request.auth.uid) || (isSignedIn() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['viewCount']));
+      allow delete: if isSignedIn() && resource.data.authorId == request.auth.uid;
+    }
+
+    /**
+     * @description Blog categories are publicly readable by all users but are not client-writable.
+     * @path /blogCategories/{categoryId}
+     * @allow (list) Any user, including unauthenticated ones, listing all categories.
+     * @deny (create) Any client attempting to create a new category.
+     * @principle Provides public read access while restricting all write operations.
+     */
+    match /blogCategories/{categoryId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    /**
+     * @description Blog tags are publicly readable by all users but are not client-writable.
+     * @path /blogTags/{tagId}
+     * @allow (list) Any user, including unauthenticated ones, listing all tags.
+     * @deny (update) Any client attempting to rename a tag.
+     * @principle Provides public read access while restricting all write operations.
+     */
+    match /blogTags/{tagId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    /**
+     * @description CMS content is publicly readable but is not client-writable.
+     * @path /cmsContent/{contentId}
+     * @allow (get) Any user reading a CMS content block to display on the website.
+     * @deny (delete) Any client trying to delete the homepage hero text.
+     * @principle Provides public read access while restricting all write operations.
+     */
+    match /cmsContent/{contentId} {
+      allow read: if true;
+      allow write: if false;
+    }
+    
+    // -------------------------------------------------------------------------
+    // Guest Data Collections (Saved by IP for anonymous users)
+    // -------------------------------------------------------------------------
+
+    /**
+     * @description Anonymous users can save invoices by IP.
+     * @path /guestInvoices/{invoiceId}
+     */
+    match /guestInvoices/{invoiceId} {
+      allow read, write: if true;
+    }
+
+    /**
+     * @description Anonymous users can save estimates by IP.
+     * @path /guestEstimates/{estimateId}
+     */
+    match /guestEstimates/{estimateId} {
+      allow read, write: if true;
+    }
+
+    // -------------------------------------------------------------------------
+    // Administrative Collections
+    // -------------------------------------------------------------------------
+
+    /**
+     * @description This collection is locked down from all client-side access. It is no longer used in rules.
+     * @path /roles_admin/{userId}
+     * @allow (none) No operations are permitted from the client.
+     * @deny (any) Any client attempting to read or write to this path.
+     * @principle Secures role-based access control by making role definitions server-side only.
+     */
+    match /roles_admin/{userId} {
+      allow read, write: if false;
+    }
+  }
+}

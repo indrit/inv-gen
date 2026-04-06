@@ -1,0 +1,1344 @@
+{
+  "entities": {
+    "UserAccount": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserAccount",
+      "type": "object",
+      "description": "Represents a user account in InvoiceFlow, tracking usage metrics, subscription status, and basic profile information. It does not store authentication credentials.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the UserAccount entity."
+        },
+        "externalAuthId": {
+          "type": "string",
+          "description": "Identifier provided by the external authentication system (e.g., Google, Apple) for the user."
+        },
+        "email": {
+          "type": "string",
+          "description": "Email address of the user, typically obtained from the authentication provider.",
+          "format": "email"
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Display name of the user, typically obtained from the authentication provider."
+        },
+        "freeDownloadsUsed": {
+          "type": "number",
+          "description": "Number of invoices/estimates downloaded by the user without logging in (up to 2 allowed)."
+        },
+        "loggedInDownloadsUsed": {
+          "type": "number",
+          "description": "Number of invoices/estimates downloaded by the user after logging in (up to 3 additional downloads for free users)."
+        },
+        "donationPromptCount": {
+          "type": "number",
+          "description": "Counts how many times the user has been presented with the 'Buy Me a Coffee' donation prompt."
+        },
+        "donationDeclineCount": {
+          "type": "number",
+          "description": "Counts how many times the user has declined the donation prompt (up to 2 declines allowed before donation is required)."
+        },
+        "isPremiumSubscriber": {
+          "type": "boolean",
+          "description": "Indicates if the user currently has an active premium subscription."
+        },
+        "subscriptionId": {
+          "type": "string",
+          "description": "Reference to the active Subscription entity for this user, if they are a premium subscriber. (Relationship: Subscription 1:1 UserAccount)"
+        },
+        "invoiceNumberCounter": {
+          "type": "number",
+          "description": "The next sequential invoice number to be used for this user's invoices, primarily for premium subscribers with automatic numbering."
+        },
+        "isAdmin": {
+          "type": "boolean",
+          "description": "Indicates if the user has administrative privileges, typically for accessing the CMS backend."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the user account record was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the user account record was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "externalAuthId",
+        "email",
+        "freeDownloadsUsed",
+        "loggedInDownloadsUsed",
+        "donationPromptCount",
+        "donationDeclineCount",
+        "isPremiumSubscriber",
+        "isAdmin",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "UserProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserProfile",
+      "type": "object",
+      "description": "Stores user-specific default preferences and sender information for invoices and estimates.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the UserProfile entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the UserAccount entity this profile belongs to. (Relationship: UserAccount 1:1 UserProfile)"
+        },
+        "defaultCompanyName": {
+          "type": "string",
+          "description": "The user's default company name to appear on invoices and estimates."
+        },
+        "defaultAddressLine1": {
+          "type": "string",
+          "description": "The user's default primary address line for invoices and estimates."
+        },
+        "defaultAddressLine2": {
+          "type": "string",
+          "description": "The user's default secondary address line for invoices and estimates."
+        },
+        "defaultCity": {
+          "type": "string",
+          "description": "The user's default city for invoices and estimates."
+        },
+        "defaultStateProvince": {
+          "type": "string",
+          "description": "The user's default state or province for invoices and estimates."
+        },
+        "defaultPostalCode": {
+          "type": "string",
+          "description": "The user's default postal code for invoices and estimates."
+        },
+        "defaultCountry": {
+          "type": "string",
+          "description": "The user's default country for invoices and estimates."
+        },
+        "defaultEmail": {
+          "type": "string",
+          "description": "The user's default email address for invoices and estimates.",
+          "format": "email"
+        },
+        "defaultPhone": {
+          "type": "string",
+          "description": "The user's default phone number for invoices and estimates."
+        },
+        "defaultTaxRate": {
+          "type": "number",
+          "description": "The user's default tax rate percentage to apply to invoices and estimates."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the user profile was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the user profile was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "Client": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Client",
+      "type": "object",
+      "description": "Represents a client or customer to whom invoices and estimates are issued.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Client entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the UserAccount entity that owns this client record. (Relationship: UserAccount 1:N Client)"
+        },
+        "name": {
+          "type": "string",
+          "description": "Full name or company name of the client."
+        },
+        "email": {
+          "type": "string",
+          "description": "Email address of the client.",
+          "format": "email"
+        },
+        "phone": {
+          "type": "string",
+          "description": "Phone number of the client."
+        },
+        "billingAddressLine1": {
+          "type": "string",
+          "description": "Primary address line of the client's billing address."
+        },
+        "billingAddressLine2": {
+          "type": "string",
+          "description": "Secondary address line of the client's billing address."
+        },
+        "billingCity": {
+          "type": "string",
+          "description": "City of the client's billing address."
+        },
+        "billingStateProvince": {
+          "type": "string",
+          "description": "State or province of the client's billing address."
+        },
+        "billingPostalCode": {
+          "type": "string",
+          "description": "Postal code of the client's billing address."
+        },
+        "billingCountry": {
+          "type": "string",
+          "description": "Country of the client's billing address."
+        },
+        "shippingAddressLine1": {
+          "type": "string",
+          "description": "Primary address line of the client's shipping address."
+        },
+        "shippingAddressLine2": {
+          "type": "string",
+          "description": "Secondary address line of the client's shipping address."
+        },
+        "shippingCity": {
+          "type": "string",
+          "description": "City of the client's shipping address."
+        },
+        "shippingStateProvince": {
+          "type": "string",
+          "description": "State or province of the client's shipping address."
+        },
+        "shippingPostalCode": {
+          "type": "string",
+          "description": "Postal code of the client's shipping address."
+        },
+        "shippingCountry": {
+          "type": "string",
+          "description": "Country of the client's shipping address."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the client record was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the client record was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "name",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "Invoice": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Invoice",
+      "type": "object",
+      "description": "Represents a generated invoice document, including all its details.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Invoice entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the UserAccount entity that created this invoice. (Relationship: UserAccount 1:N Invoice)"
+        },
+        "clientId": {
+          "type": "string",
+          "description": "Reference to the Client entity for whom this invoice is created. (Relationship: Client 1:N Invoice)"
+        },
+        "invoiceNumber": {
+          "type": "string",
+          "description": "Unique identifier or number assigned to the invoice. This can be user-editable or auto-generated for premium subscribers."
+        },
+        "issueDate": {
+          "type": "string",
+          "description": "The date when the invoice was issued.",
+          "format": "date"
+        },
+        "dueDate": {
+          "type": "string",
+          "description": "The date by which the invoice payment is due.",
+          "format": "date"
+        },
+        "status": {
+          "type": "string",
+          "description": "Current status of the invoice.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "currency": {
+          "type": "string",
+          "description": "The currency code used for all monetary values in the invoice (e.g., 'USD', 'EUR')."
+        },
+        "subtotal": {
+          "type": "number",
+          "description": "The sum of all line item totals before tax and discounts."
+        },
+        "taxRate": {
+          "type": "number",
+          "description": "The total tax rate percentage applied to the invoice."
+        },
+        "taxAmount": {
+          "type": "number",
+          "description": "The total amount of tax applied to the invoice."
+        },
+        "discountAmount": {
+          "type": "number",
+          "description": "The total discount amount applied to the invoice."
+        },
+        "totalAmount": {
+          "type": "number",
+          "description": "The final total amount of the invoice after applying tax and discounts."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Any additional notes or comments included in the invoice."
+        },
+        "termsAndConditions": {
+          "type": "string",
+          "description": "Payment terms and conditions specified for the invoice."
+        },
+        "senderCompanyName": {
+          "type": "string",
+          "description": "The company name of the invoice sender."
+        },
+        "senderAddressLine1": {
+          "type": "string",
+          "description": "The primary address line of the invoice sender."
+        },
+        "senderAddressLine2": {
+          "type": "string",
+          "description": "The secondary address line of the invoice sender."
+        },
+        "senderCity": {
+          "type": "string",
+          "description": "The city of the invoice sender's address."
+        },
+        "senderStateProvince": {
+          "type": "string",
+          "description": "The state or province of the invoice sender's address."
+        },
+        "senderPostalCode": {
+          "type": "string",
+          "description": "The postal code of the invoice sender's address."
+        },
+        "senderCountry": {
+          "type": "string",
+          "description": "The country of the invoice sender's address."
+        },
+        "senderEmail": {
+          "type": "string",
+          "description": "The email address of the invoice sender.",
+          "format": "email"
+        },
+        "senderPhone": {
+          "type": "string",
+          "description": "The phone number of the invoice sender."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the invoice was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the invoice was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "clientId",
+        "invoiceNumber",
+        "issueDate",
+        "status",
+        "currency",
+        "subtotal",
+        "taxAmount",
+        "totalAmount",
+        "senderCompanyName",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "Estimate": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Estimate",
+      "type": "object",
+      "description": "Represents a generated estimate document, including all its details.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Estimate entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the UserAccount entity that created this estimate. (Relationship: UserAccount 1:N Estimate)"
+        },
+        "clientId": {
+          "type": "string",
+          "description": "Reference to the Client entity for whom this estimate is created. (Relationship: Client 1:N Estimate)"
+        },
+        "estimateNumber": {
+          "type": "string",
+          "description": "Unique identifier or number assigned to the estimate, editable by the user."
+        },
+        "issueDate": {
+          "type": "string",
+          "description": "The date when the estimate was issued.",
+          "format": "date"
+        },
+        "expiryDate": {
+          "type": "string",
+          "description": "The date by which the estimate is valid and can be accepted.",
+          "format": "date"
+        },
+        "status": {
+          "type": "string",
+          "description": "Current status of the estimate.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "currency": {
+          "type": "string",
+          "description": "The currency code used for all monetary values in the estimate (e.g., 'USD', 'EUR')."
+        },
+        "subtotal": {
+          "type": "number",
+          "description": "The sum of all line item totals before tax and discounts."
+        },
+        "taxRate": {
+          "type": "number",
+          "description": "The total tax rate percentage applied to the estimate."
+        },
+        "taxAmount": {
+          "type": "number",
+          "description": "The total amount of tax applied to the estimate."
+        },
+        "discountAmount": {
+          "type": "number",
+          "description": "The total discount amount applied to the estimate."
+        },
+        "totalAmount": {
+          "type": "number",
+          "description": "The final total amount of the estimate after applying tax and discounts."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Any additional notes or comments included in the estimate."
+        },
+        "termsAndConditions": {
+          "type": "string",
+          "description": "Terms and conditions specified for the estimate."
+        },
+        "senderCompanyName": {
+          "type": "string",
+          "description": "The company name of the estimate sender."
+        },
+        "senderAddressLine1": {
+          "type": "string",
+          "description": "The primary address line of the estimate sender."
+        },
+        "senderAddressLine2": {
+          "type": "string",
+          "description": "The secondary address line of the estimate sender."
+        },
+        "senderCity": {
+          "type": "string",
+          "description": "The city of the estimate sender's address."
+        },
+        "senderStateProvince": {
+          "type": "string",
+          "description": "The state or province of the estimate sender's address."
+        },
+        "senderPostalCode": {
+          "type": "string",
+          "description": "The postal code of the estimate sender's address."
+        },
+        "senderCountry": {
+          "type": "string",
+          "description": "The country of the estimate sender's address."
+        },
+        "senderEmail": {
+          "type": "string",
+          "description": "The email address of the estimate sender.",
+          "format": "email"
+        },
+        "senderPhone": {
+          "type": "string",
+          "description": "The phone number of the estimate sender."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the estimate was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the estimate was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "clientId",
+        "estimateNumber",
+        "issueDate",
+        "status",
+        "currency",
+        "subtotal",
+        "taxAmount",
+        "totalAmount",
+        "senderCompanyName",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "LineItem": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "LineItem",
+      "type": "object",
+      "description": "Represents a single item or service line within an invoice or an estimate.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the LineItem entity."
+        },
+        "parentId": {
+          "type": "string",
+          "description": "Reference to the Invoice or Estimate entity this line item belongs to. (Relationship: Invoice 1:N LineItem or Estimate 1:N LineItem)"
+        },
+        "parentType": {
+          "type": "string",
+          "description": "Indicates whether the `parentId` refers to an 'Invoice' or an 'Estimate'.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "description": {
+          "type": "string",
+          "description": "A description of the item or service."
+        },
+        "quantity": {
+          "type": "number",
+          "description": "The quantity of the item or service."
+        },
+        "unitPrice": {
+          "type": "number",
+          "description": "The price per unit of the item or service."
+        },
+        "total": {
+          "type": "number",
+          "description": "The calculated total for the line item (quantity * unitPrice)."
+        },
+        "orderIndex": {
+          "type": "number",
+          "description": "The display order of this line item within its parent document (invoice or estimate)."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the line item was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the line item was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "parentId",
+        "parentType",
+        "description",
+        "quantity",
+        "unitPrice",
+        "total",
+        "orderIndex",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "Subscription": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Subscription",
+      "type": "object",
+      "description": "Manages details for a user's premium subscription plan.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Subscription entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the UserAccount entity that holds this subscription. (Relationship: UserAccount 1:1 Subscription)"
+        },
+        "planType": {
+          "type": "string",
+          "description": "The type of subscription plan.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "startDate": {
+          "type": "string",
+          "description": "The date and time when the subscription became active.",
+          "format": "date-time"
+        },
+        "endDate": {
+          "type": "string",
+          "description": "The date and time when the subscription is set to expire or end.",
+          "format": "date-time"
+        },
+        "status": {
+          "type": "string",
+          "description": "Current status of the subscription.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "pricePerMonth": {
+          "type": "number",
+          "description": "The monthly price of the subscription plan."
+        },
+        "paymentProviderSubscriptionId": {
+          "type": "string",
+          "description": "Identifier for the subscription in the external payment provider system (e.g., Stripe, PayPal)."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the subscription record was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the subscription record was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "planType",
+        "startDate",
+        "status",
+        "pricePerMonth",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "BlogPost": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "BlogPost",
+      "type": "object",
+      "description": "Represents a blog post published in the integrated blog section, including its content and SEO metadata.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the BlogPost entity."
+        },
+        "authorId": {
+          "type": "string",
+          "description": "Reference to the UserAccount entity (an admin user) who authored this blog post. (Relationship: UserAccount 1:N BlogPost)"
+        },
+        "title": {
+          "type": "string",
+          "description": "The main title of the blog post."
+        },
+        "slug": {
+          "type": "string",
+          "description": "URL-friendly version of the blog post title, used for permalinks and SEO."
+        },
+        "content": {
+          "type": "string",
+          "description": "The main content of the blog post, typically stored in HTML or Markdown format."
+        },
+        "outline": {
+          "type": "object",
+          "description": "The AI-generated outline structure saved for future editing."
+        },
+        "drafts": {
+          "type": "object",
+          "description": "The AI-generated section drafts saved for future editing."
+        },
+        "viewCount": {
+          "type": "number",
+          "description": "The number of times the blog post has been viewed."
+        },
+        "excerpt": {
+          "type": "string",
+          "description": "A short summary or snippet of the blog post content, used for listings or meta descriptions."
+        },
+        "featuredImageUri": {
+          "type": "string",
+          "description": "URI of the featured image associated with the blog post.",
+          "format": "uri"
+        },
+        "publishDate": {
+          "type": "string",
+          "description": "The date and time when the blog post was published.",
+          "format": "date-time"
+        },
+        "status": {
+          "type": "string",
+          "description": "Current status of the blog post (e.g., Draft, Published, Archived).",
+          "items": {
+            "type": "string"
+          }
+        },
+        "seoTitle": {
+          "type": "string",
+          "description": "Optimized title for search engine results pages."
+        },
+        "seoDescription": {
+          "type": "string",
+          "description": "Meta description for search engines, providing a brief summary of the post content."
+        },
+        "seoKeywords": {
+          "type": "string",
+          "description": "Comma-separated keywords relevant to the blog post content for SEO."
+        },
+        "categoryIds": {
+          "type": "array",
+          "description": "References to BlogCategory entities that categorize this post. (Relationship: BlogCategory N:N BlogPost)",
+          "items": {
+            "type": "string"
+          }
+        },
+        "tagIds": {
+          "type": "array",
+          "description": "References to BlogTag entities associated with this post for further categorization. (Relationship: BlogTag N:N BlogPost)",
+          "items": {
+            "type": "string"
+          }
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the blog post was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the blog post was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "authorId",
+        "title",
+        "slug",
+        "content",
+        "publishDate",
+        "status",
+        "seoTitle",
+        "seoDescription",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "GuestInvoice": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "GuestInvoice",
+      "type": "object",
+      "description": "Represents an invoice saved by an anonymous user, identified by their IP address.",
+      "properties": {
+        "ipAddress": {
+          "type": "string",
+          "description": "The IP address of the anonymous user who created the invoice."
+        },
+        "invoiceNumber": { "type": "string" },
+        "issueDate": { "type": "string", "format": "date" },
+        "dueDate": { "type": "string", "format": "date" },
+        "totalAmount": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ipAddress", "invoiceNumber", "issueDate", "totalAmount", "createdAt"]
+    },
+    "GuestEstimate": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "GuestEstimate",
+      "type": "object",
+      "description": "Represents an estimate saved by an anonymous user, identified by their IP address.",
+      "properties": {
+        "ipAddress": {
+          "type": "string",
+          "description": "The IP address of the anonymous user who created the estimate."
+        },
+        "estimateNumber": { "type": "string" },
+        "issueDate": { "type": "string", "format": "date" },
+        "expiryDate": { "type": "string", "format": "date" },
+        "totalAmount": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ipAddress", "estimateNumber", "issueDate", "totalAmount", "createdAt"]
+    },
+    "CRMContact": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "CRMContact",
+      "type": "object",
+      "description": "Represents a contact in the CRM system.",
+      "properties": {
+        "id": { "type": "string" },
+        "firstName": { "type": "string" },
+        "lastName": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "phone": { "type": "string" },
+        "company": { "type": "string" },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "firstName", "lastName", "email", "createdAt", "updatedAt"]
+    },
+    "CRMLead": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "CRMLead",
+      "type": "object",
+      "description": "Represents a lead in the CRM system.",
+      "properties": {
+        "id": { "type": "string" },
+        "contactId": { "type": "string" },
+        "status": { "type": "string", "enum": ["new", "contacted", "qualified", "lost", "won"] },
+        "value": { "type": "number" },
+        "source": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "contactId", "status", "createdAt", "updatedAt"]
+    },
+    "EmailCampaign": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "EmailCampaign",
+      "type": "object",
+      "description": "Represents an email marketing campaign.",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "subject": { "type": "string" },
+        "content": { "type": "string" },
+        "status": { "type": "string", "enum": ["draft", "scheduled", "sent", "archived"] },
+        "scheduledAt": { "type": "string", "format": "date-time" },
+        "sentAt": { "type": "string", "format": "date-time" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "name", "subject", "content", "status", "createdAt", "updatedAt"]
+    },
+    "EmailSubscriber": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "EmailSubscriber",
+      "type": "object",
+      "description": "Represents a subscriber to email marketing.",
+      "properties": {
+        "id": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "status": { "type": "string", "enum": ["active", "unsubscribed", "bounced"] },
+        "subscribedAt": { "type": "string", "format": "date-time" },
+        "unsubscribedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "email", "status", "subscribedAt"]
+    },
+    "BlogCategory": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "BlogCategory",
+      "type": "object",
+      "description": "Defines categories for organizing blog posts.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the BlogCategory entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the blog category."
+        },
+        "slug": {
+          "type": "string",
+          "description": "URL-friendly version of the category name, used for permalinks."
+        },
+        "description": {
+          "type": "string",
+          "description": "A brief description of the blog category."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the blog category was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the blog category was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "slug",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "BlogTag": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "BlogTag",
+      "type": "object",
+      "description": "Defines tags for granular classification of blog posts.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the BlogTag entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the blog tag."
+        },
+        "slug": {
+          "type": "string",
+          "description": "URL-friendly version of the tag name, used for permalinks."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the blog tag was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the blog tag was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "slug",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "CmsContent": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "CmsContent",
+      "type": "object",
+      "description": "Stores editable content blocks or sections for the frontend, managed via the CMS backend.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the CmsContent entity."
+        },
+        "key": {
+          "type": "string",
+          "description": "A unique key that identifies a specific content block (e.g., 'homepage_hero_title', 'about_us_section_text')."
+        },
+        "title": {
+          "type": "string",
+          "description": "A human-readable title for the content block, used in the CMS for easy identification."
+        },
+        "content": {
+          "type": "string",
+          "description": "The actual content of the block, which could be HTML, Markdown, or plain text."
+        },
+        "contentType": {
+          "type": "string",
+          "description": "Specifies the format of the content (e.g., HTML, Markdown, PlainText).",
+          "items": {
+            "type": "string"
+          }
+        },
+        "lastEditedByUserId": {
+          "type": "string",
+          "description": "Reference to the UserAccount (admin) who last edited this content block. (Relationship: UserAccount 1:N CmsContent)"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the CMS content block was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the CMS content block was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "key",
+        "title",
+        "content",
+        "contentType",
+        "createdAt",
+        "updatedAt"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "google.com",
+      "apple.com",
+      "password"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "UserAccount",
+          "schema": {
+            "$ref": "#/backend/entities/UserAccount"
+          },
+          "description": "Stores core user account information, usage metrics, and subscription status. The document ID `{userId}` MUST match `request.auth.uid` for security. Includes `externalAuthId` which is typically `request.auth.uid`.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique ID of the user, matching `request.auth.uid`."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/profile",
+        "definition": {
+          "entityName": "UserProfile",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "Stores user-specific default preferences and sender information. The document ID will be the same as `{userId}`. Includes denormalized 'userId' for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique ID of the user, matching `request.auth.uid`."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/clients/{clientId}",
+        "definition": {
+          "entityName": "Client",
+          "schema": {
+            "$ref": "#/backend/entities/Client"
+          },
+          "description": "Contains client records owned by a specific user. Includes denormalized 'userId' for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique ID of the user who owns this client."
+            },
+            {
+              "name": "clientId",
+              "description": "The unique ID of the client."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/invoices/{invoiceId}",
+        "definition": {
+          "entityName": "Invoice",
+          "schema": {
+            "$ref": "#/backend/entities/Invoice"
+          },
+          "description": "Stores invoice documents created by a specific user. Includes denormalized 'userId' for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique ID of the user who created this invoice."
+            },
+            {
+              "name": "invoiceId",
+              "description": "The unique ID of the invoice."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/invoices/{invoiceId}/lineItems/{lineItemId}",
+        "definition": {
+          "entityName": "LineItem",
+          "schema": {
+            "$ref": "#/backend/entities/LineItem"
+          },
+          "description": "Stores individual line items for a specific invoice. Includes denormalized 'userId' from the parent invoice for authorization independence. 'parentId' will refer to 'invoiceId'.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique ID of the user who owns the parent invoice."
+            },
+            {
+              "name": "invoiceId",
+              "description": "The unique ID of the parent invoice."
+            },
+            {
+              "name": "lineItemId",
+              "description": "The unique ID of the line item."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/estimates/{estimateId}",
+        "definition": {
+          "entityName": "Estimate",
+          "schema": {
+            "$ref": "#/backend/entities/Estimate"
+          },
+          "description": "Stores estimate documents created by a specific user. Includes denormalized 'userId' for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique ID of the user who created this estimate."
+            },
+            {
+              "name": "estimateId",
+              "description": "The unique ID of the estimate."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/estimates/{estimateId}/lineItems/{lineItemId}",
+        "definition": {
+          "entityName": "LineItem",
+          "schema": {
+            "$ref": "#/backend/entities/LineItem"
+          },
+          "description": "Stores individual line items for a specific estimate. Includes denormalized 'userId' from the parent estimate for authorization independence. 'parentId' will refer to 'estimateId'.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique ID of the user who owns the parent estimate."
+            },
+            {
+              "name": "estimateId",
+              "description": "The unique ID of the parent estimate."
+            },
+            {
+              "name": "lineItemId",
+              "description": "The unique ID of the line item."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/subscription",
+        "definition": {
+          "entityName": "Subscription",
+          "schema": {
+            "$ref": "#/backend/entities/Subscription"
+          },
+          "description": "Manages details for a user's premium subscription plan. The document ID will be the same as `{userId}`. Includes denormalized 'userId' for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique ID of the user who owns this subscription."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/blogPosts/{blogPostId}",
+        "definition": {
+          "entityName": "BlogPost",
+          "schema": {
+            "$ref": "#/backend/entities/BlogPost"
+          },
+          "description": "Stores blog posts. Publicly readable for `status: 'Published'`, admin-editable. Includes 'authorId' for audit and 'status' for access control and QAPs.",
+          "params": [
+            {
+              "name": "blogPostId",
+              "description": "The unique ID of the blog post."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/blogCategories/{categoryId}",
+        "definition": {
+          "entityName": "BlogCategory",
+          "schema": {
+            "$ref": "#/backend/entities/BlogCategory"
+          },
+          "description": "Defines categories for organizing blog posts. Publicly readable, admin-editable.",
+          "params": [
+            {
+              "name": "categoryId",
+              "description": "The unique ID of the blog category."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/blogTags/{tagId}",
+        "definition": {
+          "entityName": "BlogTag",
+          "schema": {
+            "$ref": "#/backend/entities/BlogTag"
+          },
+          "description": "Defines tags for granular classification of blog posts. Publicly readable, admin-editable.",
+          "params": [
+            {
+              "name": "tagId",
+              "description": "The unique ID of the blog tag."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/cmsContent/{contentId}",
+        "definition": {
+          "entityName": "CmsContent",
+          "schema": {
+            "$ref": "#/backend/entities/CmsContent"
+          },
+          "description": "Stores editable content blocks for the frontend. Publicly readable, admin-editable. Includes 'lastEditedByUserId' for audit.",
+          "params": [
+            {
+              "name": "contentId",
+              "description": "The unique ID of the CMS content block."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/roles_admin/{userId}",
+        "definition": {
+          "entityName": "UserAccount",
+          "schema": {
+            "$ref": "#/backend/entities/UserAccount"
+          },
+          "description": "Dedicated collection for administrative roles (DBAC). A document's existence at this path signifies that the `{userId}` has admin privileges. Used for Authorization Independence by checking existence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique ID of the user who has admin privileges. Matches `request.auth.uid`."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/guestInvoices/{invoiceId}",
+        "definition": {
+          "entityName": "GuestInvoice",
+          "schema": {
+            "$ref": "#/backend/entities/GuestInvoice"
+          },
+          "description": "Stores invoices created by anonymous users, identified by IP address.",
+          "params": [
+            {
+              "name": "invoiceId",
+              "description": "The unique ID of the guest invoice."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/guestEstimates/{estimateId}",
+        "definition": {
+          "entityName": "GuestEstimate",
+          "schema": {
+            "$ref": "#/backend/entities/GuestEstimate"
+          },
+          "description": "Stores estimates created by anonymous users, identified by IP address.",
+          "params": [
+            {
+              "name": "estimateId",
+              "description": "The unique ID of the guest estimate."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/crm_contacts/{contactId}",
+        "definition": {
+          "entityName": "CRMContact",
+          "schema": {
+            "$ref": "#/backend/entities/CRMContact"
+          },
+          "description": "Stores CRM contacts. Admin-editable.",
+          "params": [
+            {
+              "name": "contactId",
+              "description": "The unique ID of the CRM contact."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/crm_leads/{leadId}",
+        "definition": {
+          "entityName": "CRMLead",
+          "schema": {
+            "$ref": "#/backend/entities/CRMLead"
+          },
+          "description": "Stores CRM leads. Admin-editable.",
+          "params": [
+            {
+              "name": "leadId",
+              "description": "The unique ID of the CRM lead."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/email_campaigns/{campaignId}",
+        "definition": {
+          "entityName": "EmailCampaign",
+          "schema": {
+            "$ref": "#/backend/entities/EmailCampaign"
+          },
+          "description": "Stores email marketing campaigns. Admin-editable.",
+          "params": [
+            {
+              "name": "campaignId",
+              "description": "The unique ID of the email campaign."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/email_subscribers/{subscriberId}",
+        "definition": {
+          "entityName": "EmailSubscriber",
+          "schema": {
+            "$ref": "#/backend/entities/EmailSubscriber"
+          },
+          "description": "Stores email subscribers. Admin-editable.",
+          "params": [
+            {
+              "name": "subscriberId",
+              "description": "The unique ID of the email subscriber."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure for InvoiceFlow is designed with a strong emphasis on Authorization Independence, Structural Segregation, and clear Access Modeling to ensure security, scalability, and debuggability. All user-specific data is rooted under a top-level `users/{userId}` collection, utilizing path-based ownership. This means that for entities like `UserProfile`, `Client`, `Invoice`, `Estimate`, and `Subscription`, the authenticated user's ID (`request.auth.uid`) can be directly compared with the `{userId}` wildcard in the path, eliminating the need for `get()` calls in security rules to ascertain ownership.\n\n**Authorization Independence (Strategy A):**\n\n1.  **Path-Based Ownership:** For `UserProfile`, `Client`, `Invoice`, `Estimate`, and `Subscription`, the `userId` is an explicit part of the document path (e.g., `users/{userId}/clients/{clientId}`). This directly provides the ownership context for security rules without needing to fetch parent documents.\n2.  **Denormalization:** For `LineItem` documents, which are nested under `Invoice` or `Estimate`, the `userId` of the parent invoice/estimate will be denormalized and stored directly within each `lineItem` document. This ensures that even if `LineItem` access were to be evaluated independently, or if a rule needs to confirm the owner of a `lineItem` during a batch write or transaction, it can do so without a `get()` operation on the parent `Invoice` or `Estimate`. This also enables robust querying of line items by user ID if needed. The `userId` property within the `LineItem` document should mirror the `{userId}` from its parent path.\n3.  **Global Roles (DBAC):** Admin roles are handled via a dedicated top-level collection `roles_admin/{userId}`. Authorization for admin-only operations (like managing blog posts or CMS content) will check for the existence of a document at `roles_admin/$(request.auth.uid)`, adhering to the 'Existence over Content' principle for global roles and avoiding complex custom claims.\n\n**QAPs (Rules are not Filters):**\n\n1.  **User-Owned Data:** For all personal data collections (e.g., `users/{userId}/clients`, `users/{userId}/invoices`), `list` operations are inherently secure and efficient. A user can only query their own data by construction (`users/{request.auth.uid}/clients`), and the rules will simply verify that `request.auth.uid` matches the `{userId}` in the path. This allows clients to fetch all their relevant data directly without requiring additional server-side filtering or pagination logic in security rules.\n2.  **Public Content (Structural Segregation - Strategy B):**\n    *   **`blogPosts`:** This collection uses a `status` field (`PUBLISHED`, `DRAFT`) for explicit state modeling. Public users can perform `list` and `get` operations only on documents where `status == 'PUBLISHED'`. Admin users (identified via `roles_admin`) will have full read/write access to all `blogPosts` regardless of status. This segregation by status within a single collection is acceptable for public content where the intent is clear: published items are public, drafts are private to admins. The `list` operation for public users would explicitly filter on `status: 'PUBLISHED'`, which is a Query-as-a-Permission pattern.\n    *   **`blogCategories`, `blogTags`, `cmsContent`:** These collections are designed for public read access (allowing unrestricted `list` operations) and admin-only write access. Their homogeneous security posture (all documents are publicly readable, all editable by admins) makes rules simple and `list` operations straightforward without filtering concerns for the public view."
+  }
+}
+
+    

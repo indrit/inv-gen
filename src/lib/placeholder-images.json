@@ -1,0 +1,28 @@
+{
+  "placeholderImages": [
+    {
+      "id": "blog-post-1",
+      "description": "A person working on a laptop with charts and graphs in the background.",
+      "imageUrl": "https://picsum.photos/seed/101/1200/800",
+      "imageHint": "business finance"
+    },
+    {
+      "id": "blog-post-2",
+      "description": "A close-up of a signed contract or invoice.",
+      "imageUrl": "https://picsum.photos/seed/102/1200/800",
+      "imageHint": "contract agreement"
+    },
+    {
+      "id": "blog-post-3",
+      "description": "A freelancer happily working from a modern co-working space.",
+      "imageUrl": "https://picsum.photos/seed/103/1200/800",
+      "imageHint": "freelancer workspace"
+    },
+    {
+      "id": "blog-post-4",
+      "description": "An abstract image representing cash flow and financial growth.",
+      "imageUrl": "https://picsum.photos/seed/104/1200/800",
+      "imageHint": "financial growth"
+    }
+  ]
+}
