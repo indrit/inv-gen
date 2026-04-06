@@ -4,10 +4,16 @@ import { getAuth } from 'firebase-admin/auth';
 import { getStorage } from 'firebase-admin/storage';
 import firebaseConfig from '../../firebase-applet-config.json';
 
-if (!admin.apps.length) {
-  admin.initializeApp({
-    projectId: firebaseConfig.projectId,
-  });
+try {
+  if (!admin.apps.length) {
+    console.log('Initializing Firebase Admin with Project ID:', firebaseConfig.projectId);
+    admin.initializeApp({
+      projectId: firebaseConfig.projectId,
+    });
+    console.log('Firebase Admin initialized successfully.');
+  }
+} catch (error) {
+  console.error('Firebase Admin initialization failed:', error);
 }
 
 const app = admin.apps[0]!;

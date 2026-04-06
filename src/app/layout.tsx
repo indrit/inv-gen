@@ -97,11 +97,11 @@ export default function RootLayout({
           rel="stylesheet"
         />
         <meta name="google-adsense-account" content="ca-pub-2333095168156324" />
-        <script 
-          async 
+        <script
+          async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2333095168156324"
           crossOrigin="anonymous"
-        />
+        ></script>
       </head>
       <body className={cn('font-body antialiased')}>
         <Script

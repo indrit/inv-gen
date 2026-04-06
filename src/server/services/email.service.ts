@@ -7,9 +7,14 @@ export class EmailService {
   }
 
   static async getCampaigns() {
-    const coll = this.getCollection('email_campaigns');
-    const snapshot = await coll.get();
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    try {
+      const coll = this.getCollection('email_campaigns');
+      const snapshot = await coll.get();
+      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    } catch (error: any) {
+      console.error('EmailService.getCampaigns error:', error);
+      throw new Error(`Failed to fetch campaigns: ${error.message}`);
+    }
   }
 
   static async createCampaign(data: any) {
