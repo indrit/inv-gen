@@ -2,6 +2,20 @@
 # https://firebase.google.com/docs/app-hosting/configure
 
 runConfig:
-  # Increase this value if you'd like to automatically spin up
-  # more instances in response to increased traffic.
   maxInstances: 1
+
+env:
+  - variable: GOOGLE_GENAI_API_KEY
+    value: AIzaSyAasr09dGgOviG4Iqt0uHiEd_YXdha4II4
+  - variable: STRIPE_SECRET_KEY
+    value: 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
+  - variable: STRIPE_WEBHOOK_SECRET
+    value: whsec_vi4pFoAziOa5491s1Jth7IMIQKN0SjAm
+  - variable: STRIPE_PRICE_ID
+    value: prod_UHA1rAE5Vb3K4s
+  - variable: NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+    value: pk_live_51TIb8uI3TQ1WnaXVTc6QU7oSI2zLJKTHnaJJtiH946tGppHdhnP60zCy9Nc3LyyEfCCy2L52DIfk01YwlEVwEeAH007JFHNB8e
+  - variable: NEXT_PUBLIC_ADSENSE_CLIENT_ID
+    value: ca-pub-2333095168156324
+  - variable: NEXT_PUBLIC_APP_URL
+    value: https://freeonline-invoice-generator.com

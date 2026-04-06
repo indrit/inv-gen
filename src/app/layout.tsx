@@ -103,7 +103,10 @@ export default function RootLayout({
           crossOrigin="anonymous"
         ></script>
       </head>
-      <body className={cn('font-body antialiased')}>
+      <body 
+        className={cn('font-body antialiased')}
+        suppressHydrationWarning={true}
+      >
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-C3PJRS5J0T"
           strategy="afterInteractive"

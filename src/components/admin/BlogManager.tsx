@@ -109,9 +109,14 @@ export default function BlogManager() {
       const result = await generateBlogPostOutline(values);
       setOutline(result);
       toast({ title: 'Outline Generated!', description: 'Your blog post outline is ready.' });
-    } catch (error) {
-      console.error(error);
-      toast({ title: 'Error', description: 'Failed to generate outline.', variant: 'destructive' });
+    } catch (error: any) {
+      console.error('Outline Generation Error:', error);
+      const errorMessage = error.message || 'Failed to generate outline. Please check your AI API key permissions.';
+      toast({ 
+        title: 'AI Generation Failed', 
+        description: errorMessage, 
+        variant: 'destructive' 
+      });
     } finally {
       setLoadingOutline(false);
     }
@@ -127,9 +132,14 @@ export default function BlogManager() {
         });
         setDrafts(prev => ({...prev, [sectionKey]: result.sectionDraft}));
         toast({ title: `Draft for "${heading}" generated.` });
-    } catch (error) {
-        console.error(error);
-        toast({ title: 'Error', description: 'Failed to generate section draft.', variant: 'destructive' });
+    } catch (error: any) {
+        console.error('Section Draft Generation Error:', error);
+        const errorMessage = error.message || 'Failed to generate section draft. Check your API configuration.';
+        toast({ 
+            title: 'AI Draft Failed', 
+            description: errorMessage, 
+            variant: 'destructive' 
+        });
     } finally {
         setLoadingSection(null);
     }
