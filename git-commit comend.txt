@@ -1,0 +1,8 @@
+# 1. Stage the new files and fixes
+git add .
+
+# 2. Save the changes with a message
+git commit -m "Fix: Stripe 404, AI Blog 500, and added AdSense script"
+
+# 3. Push to your repository
+git push indrit main

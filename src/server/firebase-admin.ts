@@ -12,6 +12,14 @@ try {
     });
     console.log('Firebase Admin initialized successfully.');
   }
+  
+  // Quick check to see if database is talking to us
+  const dbTest = admin.firestore();
+  dbTest.listCollections().then(() => {
+    console.log('Firestore connection verified! We are talking to the database.');
+  }).catch((err) => {
+    console.error('Firestore connection FAILED. Please check your credentials:', err.message);
+  });
 } catch (error) {
   console.error('Firebase Admin initialization failed:', error);
 }
