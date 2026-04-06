@@ -1,16 +1,20 @@
 import { db } from '../firebase-admin';
 
 export class EmailService {
-  private static campaignsCollection = db.collection('email_campaigns');
-  private static subscribersCollection = db.collection('email_subscribers');
+  private static getCollection(name: string) {
+    if (!db) throw new Error('Firestore Admin not initialized');
+    return db.collection(name);
+  }
 
   static async getCampaigns() {
-    const snapshot = await this.campaignsCollection.get();
+    const coll = this.getCollection('email_campaigns');
+    const snapshot = await coll.get();
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   }
 
   static async createCampaign(data: any) {
-    const docRef = await this.campaignsCollection.add({
+    const coll = this.getCollection('email_campaigns');
+    const docRef = await coll.add({
       ...data,
       status: 'draft',
       createdAt: new Date().toISOString(),
@@ -20,12 +24,14 @@ export class EmailService {
   }
 
   static async getSubscribers() {
-    const snapshot = await this.subscribersCollection.get();
+    const coll = this.getCollection('email_subscribers');
+    const snapshot = await coll.get();
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   }
 
   static async createSubscriber(data: any) {
-    const docRef = await this.subscribersCollection.add({
+    const coll = this.getCollection('email_subscribers');
+    const docRef = await coll.add({
       ...data,
       status: 'active',
       subscribedAt: new Date().toISOString(),

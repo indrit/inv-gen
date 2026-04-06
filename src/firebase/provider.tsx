@@ -109,7 +109,7 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
               // Connect to CRM Backend only for new signups
               if (firebaseUser.email) {
                 try {
-                  await fetch('/api/crm/contacts', {
+                  const response = await fetch('/api/crm/contacts', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -119,7 +119,11 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
                       source: 'signup'
                     }),
                   });
-                  console.log('Successfully added user to CRM');
+                  if (!response.ok) {
+                    console.error('CRM API responded with status:', response.status);
+                  } else {
+                    console.log('Successfully added user to CRM');
+                  }
                 } catch (crmError) {
                   console.error('Failed to add user to CRM:', crmError);
                 }
@@ -132,7 +136,7 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
               
               // Also sync to CRM if we have a name now
               try {
-                await fetch('/api/crm/contacts', {
+                const response = await fetch('/api/crm/contacts', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({
@@ -142,7 +146,12 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
                     source: 'profile_update'
                   }),
                 });
-              } catch (e) {}
+                if (!response.ok) {
+                    console.error('CRM API (Update) responded with status:', response.status);
+                }
+              } catch (e) {
+                  console.error('CRM Update fetch failed:', e);
+              }
             }
           } catch (error) {
             console.error('Error ensuring UserAccount exists:', error);

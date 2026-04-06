@@ -1,16 +1,20 @@
 import { db } from '../firebase-admin';
 
 export class CRMService {
-  private static collection = db.collection('crm_contacts');
-  private static leadsCollection = db.collection('crm_leads');
+  private static getCollection(name: string) {
+    if (!db) throw new Error('Firestore Admin not initialized');
+    return db.collection(name);
+  }
 
   static async getContacts() {
-    const snapshot = await this.collection.get();
+    const coll = this.getCollection('crm_contacts');
+    const snapshot = await coll.get();
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   }
 
   static async createContact(data: any) {
-    const docRef = await this.collection.add({
+    const coll = this.getCollection('crm_contacts');
+    const docRef = await coll.add({
       ...data,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -19,12 +23,14 @@ export class CRMService {
   }
 
   static async getLeads() {
-    const snapshot = await this.leadsCollection.get();
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const coll = this.getCollection('crm_leads');
+    const snapshot = await coll.get();
+    return snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() }));
   }
 
   static async createLead(data: any) {
-    const docRef = await this.leadsCollection.add({
+    const coll = this.getCollection('crm_leads');
+    const docRef = await coll.add({
       ...data,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
